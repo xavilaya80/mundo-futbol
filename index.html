@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mundo Fútbol</title>
+    <meta name="theme-color" content="#07130c">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="game-container">
+        <header class="game-header">
+            <h1>Mundo Fútbol <span class="h1-emoji">⚽</span></h1>
+            <div class="stats">
+                Descubiertos: <span id="count">4</span> / <span id="total-elements">0</span>
+            </div>
+            <progress id="progressBar" value="4" max="100"></progress>
+        </header>
+
+        <main class="forge-zone">
+            <div class="slots-container">
+                <div id="slot1" class="slot" onclick="clearSlot(1)">?</div>
+                <div class="forge-operator">+</div>
+                <div id="slot2" class="slot" onclick="clearSlot(2)">?</div>
+                <div class="forge-operator">+</div>
+                <div id="slot3" class="slot" onclick="clearSlot(3)">?</div>
+            </div>
+
+            <div id="message" class="message-board">
+                ¡Combina elementos! Haz clic o arrástralos a los espacios.
+            </div>
+
+            <div class="control-actions">
+                <button class="btn btn-primary" onclick="combineElements()">Combinar ⚽</button>
+                <button id="btnHintElement" class="btn btn-hint" onclick="giveElementHint()">Pista Elemento 💡</button>
+                <button id="btnHintCombo" class="btn btn-hint" onclick="giveComboHint()">Pista Grupo 🧩</button>
+                <button class="btn btn-info" onclick="openEncyclopedia()">Enciclopedia 📖</button>
+                <button class="btn btn-hint" onclick="openAchievements()">Logros 🏆</button>
+                <button class="btn btn-danger" onclick="resetGame()">Reiniciar Temporada 🔄</button>
+                <button id="btnSound" class="btn btn-sound" onclick="toggleSound()" title="Activar/silenciar sonidos">🔊</button>
+            </div>
+        </main>
+
+        <section class="search-box">
+            <input type="text" id="searchBar" oninput="filterInventory()" placeholder="Buscar elemento descubierto...">
+        </section>
+
+        <section id="inventory" class="inventory-zone">
+            </section>
+    </div>
+
+    <div id="discoveryFx" class="discovery-fx"></div>
+    <div id="toasts"></div>
+
+    <div id="encModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 id="encTitle">📖 Enciclopedia</h2>
+                <button class="modal-close" onclick="closeEncyclopedia()" title="Cerrar">✖</button>
+            </div>
+            <div id="encBody" class="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
