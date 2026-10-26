@@ -1,6 +1,6 @@
 // Service Worker de Mundo Fútbol: permite jugar sin conexión.
 // Sube la versión del caché cada vez que cambies archivos del juego.
-const CACHE = "mundo-futbol-v16";
+const CACHE = "mundo-futbol-v17";
 const ARCHIVOS = [
     ".",
     "index.html",

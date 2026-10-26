@@ -413,28 +413,113 @@ function playTone(freq, duration, type = 'sine', volume = 0.2, delay = 0) {
     } catch (e) { /* audio no disponible: seguir en silencio */ }
 }
 
-// Arpegio ascendente brillante: ¡descubrimiento nuevo!
+// === SONIDOS DE ESTADIO (sintetizados, sin archivos) ===
+
+// Ruido blanco compartido: la materia prima del sonido de multitud
+let _noiseBuf = null;
+function getNoiseBuffer(ctx) {
+    if (_noiseBuf && _noiseBuf.sampleRate === ctx.sampleRate) return _noiseBuf;
+    const len = ctx.sampleRate * 2;
+    _noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = _noiseBuf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    return _noiseBuf;
+}
+
+// Multitud: ruido filtrado con envolvente (filtro que sube = ovación, que baja = lamento)
+function playCrowd({ dur = 1.2, from = 400, to = 1200, vol = 0.25, delay = 0, type = 'bandpass' } = {}) {
+    if (!soundOn) return;
+    try {
+        const ctx = getAudioCtx();
+        const t0 = ctx.currentTime + delay;
+        const src = ctx.createBufferSource();
+        src.buffer = getNoiseBuffer(ctx);
+        src.loop = true;
+        const filter = ctx.createBiquadFilter();
+        filter.type = type;
+        filter.Q.value = 0.9;
+        filter.frequency.setValueAtTime(from, t0);
+        filter.frequency.exponentialRampToValueAtTime(to, t0 + dur * 0.55);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(vol, t0 + dur * 0.25);
+        gain.gain.setValueAtTime(vol, t0 + dur * 0.6);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+        src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+        src.start(t0); src.stop(t0 + dur + 0.1);
+    } catch (e) { /* sin audio */ }
+}
+
+// Silbato de árbitro: tono agudo con el trino de la bolita (pip / piiiip)
+function playWhistle(dur = 0.18, delay = 0, freq = 2350, vol = 0.1) {
+    if (!soundOn) return;
+    try {
+        const ctx = getAudioCtx();
+        const t0 = ctx.currentTime + delay;
+        const osc = ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, t0);
+        const trill = ctx.createOscillator();
+        trill.type = 'sine';
+        trill.frequency.setValueAtTime(55, t0);
+        const trillGain = ctx.createGain();
+        trillGain.gain.setValueAtTime(vol * 0.7, t0);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(vol, t0 + 0.015);
+        gain.gain.setValueAtTime(vol, t0 + Math.max(0.02, dur - 0.03));
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+        trill.connect(trillGain); trillGain.connect(gain.gain);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t0); osc.stop(t0 + dur + 0.05);
+        trill.start(t0); trill.stop(t0 + dur + 0.05);
+    } catch (e) { /* sin audio */ }
+}
+
+// Patada al balón: golpe grave y seco
+function playKick(delay = 0, vol = 0.3) {
+    if (!soundOn) return;
+    try {
+        const ctx = getAudioCtx();
+        const t0 = ctx.currentTime + delay;
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(120, t0);
+        osc.frequency.exponentialRampToValueAtTime(40, t0 + 0.12);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(vol, t0);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.15);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t0); osc.stop(t0 + 0.2);
+    } catch (e) { /* sin audio */ }
+}
+
+// ¡GOOOL! Patada, y la hinchada explota
 function soundDiscover() {
-    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => playTone(f, 0.35, 'triangle', 0.18, i * 0.09));
-    playTone(2093, 0.5, 'sine', 0.06, 0.36);
+    playKick(0, 0.32);
+    playCrowd({ dur: 1.6, from: 350, to: 1500, vol: 0.3, delay: 0.1 });
+    playCrowd({ dur: 1.3, from: 900, to: 2400, vol: 0.1, delay: 0.25, type: 'highpass' });
 }
 
-// Pop suave: combinación válida pero ya conocida
+// Toque-toque: jugada conocida, el partido sigue
 function soundCombine() {
-    playTone(440, 0.12, 'sine', 0.15);
-    playTone(660, 0.15, 'sine', 0.12, 0.07);
+    playKick(0, 0.22);
+    playKick(0.16, 0.18);
+    playCrowd({ dur: 0.5, from: 500, to: 800, vol: 0.05, delay: 0.05 });
 }
 
-// Zumbido grave descendente: no reaccionan
+// ¡Uuuh! La tiró afuera: lamento de la hinchada y pitazo
 function soundFail() {
-    playTone(180, 0.25, 'sawtooth', 0.08);
-    playTone(130, 0.3, 'sawtooth', 0.08, 0.12);
+    playCrowd({ dur: 1.1, from: 1100, to: 280, vol: 0.2 });
+    playWhistle(0.3, 0.55, 2100, 0.06);
 }
 
-// Fanfarria: ¡logro desbloqueado!
+// Pitazo final + ovación: ¡logro desbloqueado!
 function soundAchievement() {
-    [392, 523.25, 659.25, 783.99].forEach((f, i) => playTone(f, 0.3, 'square', 0.07, i * 0.12));
-    playTone(1046.5, 0.7, 'triangle', 0.14, 0.48);
+    playWhistle(0.15, 0);
+    playWhistle(0.15, 0.25);
+    playWhistle(0.6, 0.5);
+    playCrowd({ dur: 2, from: 400, to: 1600, vol: 0.28, delay: 0.75 });
 }
 
 // === SISTEMA DE LOGROS ===
@@ -554,22 +639,174 @@ function openAchievements() {
 }
 
 // === REVELACIÓN DE GOL (descubrimiento estilo Doodle God) ===
-const CITAS = [
+// Frases generales + frases según la categoría de lo descubierto, sin repetirse seguido.
+const CITAS_GENERALES = [
     "«La pelota no se mancha.» — Diego Maradona",
     "«El fútbol es lo más importante de las cosas menos importantes.» — Arrigo Sacchi",
-    "«Jugar al fútbol es muy simple, pero jugar un fútbol simple es lo más difícil que hay.» — Johan Cruyff",
-    "«Sin la pelota no se puede ganar.» — Johan Cruyff",
-    "«El fútbol se juega con la cabeza; las piernas son solo las herramientas.» — Johan Cruyff",
     "«El fútbol no es cuestión de vida o muerte; es mucho más importante que eso.» — Bill Shankly",
     "«El fútbol es el ballet de las masas.» — Dmitri Shostakóvich",
     "«En el fútbol todo se complica por la presencia del equipo contrario.» — Jean-Paul Sartre",
-    "«Se puede cambiar de partido o de religión, pero jamás de equipo de fútbol.» — Eduardo Galeano",
     "«Jugamos como nunca y perdimos como siempre.» — Dicho popular",
     "«Mientras la pelota ruede, hay esperanza.» — Dicho popular",
-    "«El que no corre hoy, mira el partido desde el banco mañana.» — Dicho de camarín",
     "«Los partidos se ganan en la cancha.» — Dicho popular",
     "«La pelota siempre al 10.» — Dicho popular"
 ];
+
+const CITAS_POR_GRUPO = {
+    "basico": [
+        "Todo gran mundo empieza con una pelota.",
+        "Una cancha, un balón y pasión: no hace falta más."
+    ],
+    "fundamentos": [
+        "«El fútbol se juega con la cabeza; las piernas son solo las herramientas.» — Johan Cruyff",
+        "Lo simple bien hecho vale un gol.",
+        "¡Qué jugada, señores, qué jugada!",
+        "El potrero aplaude de pie.",
+        "Primero el control, después el lujo."
+    ],
+    "reglas": [
+        "¡Cobró el árbitro, y no hay nada más que hablar!",
+        "El reglamento también es parte del juego.",
+        "Sin árbitro no hay partido, aunque nadie lo aplauda.",
+        "El VAR lo está revisando…",
+        "Las 17 reglas caben en un bolsillo; el criterio, no."
+    ],
+    "posiciones": [
+        "Cada camiseta tiene su misión en la cancha.",
+        "No hay equipo grande sin un 5 que barra.",
+        "El 10 nace, no se hace.",
+        "Detrás de cada arquero hay un loco lindo."
+    ],
+    "equipamiento": [
+        "Botines limpios, conciencia tranquila.",
+        "La camiseta pesa, y eso no se entrena.",
+        "Sin red, el gol no suena igual.",
+        "El utilero: el jugador número 12."
+    ],
+    "balones": [
+        "Cada Mundial tiene su balón, y cada balón su historia.",
+        "Redondo y de cuero: el juguete más serio del mundo.",
+        "Este balón ya es pieza de museo.",
+        "Hay balones que todavía ruedan en la memoria."
+    ],
+    "estadios": [
+        "Los templos del fútbol no se construyen: se consagran.",
+        "Un estadio vacío es cemento; lleno, es un corazón.",
+        "Aquí las paredes también gritan los goles.",
+        "El césped sagrado tiene memoria."
+    ],
+    "hinchada": [
+        "«Se puede cambiar de partido o de religión, pero jamás de equipo de fútbol.» — Eduardo Galeano",
+        "El aliento no se compra: se hereda.",
+        "La hinchada es el único jugador que nunca baja el ritmo.",
+        "Domingo, bombo y bufanda: la santa trinidad."
+    ],
+    "organizaciones": [
+        "Mucho escritorio para tan poca pelota.",
+        "El fútbol también se juega con corbata.",
+        "De aquí salen los calendarios que nadie entiende.",
+        "Burocracia con olor a pasto."
+    ],
+    "ligas": [
+        "Cada liga es un país con su propio idioma futbolero.",
+        "La tabla no miente… casi nunca.",
+        "Fútbol todos los fines de semana: bendita costumbre.",
+        "Otra liga más para trasnochar."
+    ],
+    "clubes": [
+        "Un club no es un equipo: es una forma de vivir.",
+        "Los colores no se eligen: se heredan.",
+        "Fundado por soñadores, sostenido por hinchas.",
+        "Grande de verdad es el que tiene gente que lo quiera."
+    ],
+    "selecciones": [
+        "La camiseta de la selección pesa como ninguna.",
+        "Un país entero detrás de once jugadores.",
+        "Cuando juega la selección, el país se detiene.",
+        "Himno, escudo y un nudo en la garganta."
+    ],
+    "torneos": [
+        "Las copas se ganan en los detalles.",
+        "El que gana se queda con la gloria; el que pierde, con la historia.",
+        "Un trofeo más para la vitrina soñada.",
+        "«Las finales no se juegan: se ganan.» — Dicho de camarín"
+    ],
+    "premios": [
+        "Los premios individuales se ganan en equipo.",
+        "El oro brilla, pero el juego deslumbra.",
+        "Vitrina nueva para tanto talento.",
+        "Primero el fútbol, después los premios."
+    ],
+    "actuales": [
+        "El futuro del fútbol ya está jugando.",
+        "Crack se nace, figura se hace.",
+        "Hoy rompe las redes; mañana, los libros de historia.",
+        "La nueva generación no pide permiso."
+    ],
+    "leyendas": [
+        "Las leyendas no envejecen: se agigantan.",
+        "Hay jugadores eternos aunque cuelguen los botines.",
+        "El fútbol le debe una estatua.",
+        "Cierra los ojos: todavía lo ves jugar."
+    ],
+    "entrenadores": [
+        "«Jugar al fútbol es muy simple, pero jugar un fútbol simple es lo más difícil que hay.» — Johan Cruyff",
+        "La pizarra también gana partidos.",
+        "Un buen DT ve lo que nadie más ve.",
+        "Los técnicos viven con la maleta lista."
+    ],
+    "tacticas": [
+        "«Sin la pelota no se puede ganar.» — Johan Cruyff",
+        "La táctica ordena todo hasta que la magia lo desordena.",
+        "Once contra once, y la pizarra de testigo.",
+        "Un sistema no gana solo… pero cómo ayuda."
+    ],
+    "eras": [
+        "El fútbol cambia; la pasión, jamás.",
+        "Cada época tiene el fútbol que se merece.",
+        "Del blanco y negro al 4K: siempre la misma pelota.",
+        "La historia del fútbol se escribe por capítulos."
+    ],
+    "momentos": [
+        "Hay partidos de 90 minutos y recuerdos para toda la vida.",
+        "El fútbol es el único lugar donde el tiempo se detiene.",
+        "Esto no fue un partido: fue historia pura.",
+        "¿Dónde estabas tú cuando pasó esto?"
+    ],
+    "femenino": [
+        "El fútbol es de todas y de todos.",
+        "Ellas también hacen historia con la pelota.",
+        "El talento no tiene género.",
+        "Otra pionera que agrandó la cancha."
+    ],
+    "negocio": [
+        "El fútbol moderno: pasión con cláusula de rescisión.",
+        "«Here we go!» — Fabrizio Romano",
+        "Los millones pasan; los goles quedan.",
+        "El mercado nunca duerme."
+    ],
+    "voces": [
+        "Un gol sin relato es solo una estadística.",
+        "¡GOOOOOOL! Así suena mejor, ¿cierto?",
+        "La radio inventó el fútbol dos veces.",
+        "Las voces del fútbol también hacen historia."
+    ]
+};
+
+// Anti-repetición: recuerda las últimas frases mostradas y las evita
+let citasRecientes = [];
+function citaParaElemento(el) {
+    const pool = [...(CITAS_POR_GRUPO[el.group] || []), ...CITAS_GENERALES];
+    let candidatas = pool.filter(c => !citasRecientes.includes(c));
+    if (candidatas.length === 0) {
+        citasRecientes = citasRecientes.slice(-3); // deja respirar el pool sin repetir lo recién visto
+        candidatas = pool.filter(c => !citasRecientes.includes(c));
+    }
+    const cita = candidatas[Math.floor(Math.random() * candidatas.length)];
+    citasRecientes.push(cita);
+    if (citasRecientes.length > 30) citasRecientes.shift();
+    return cita;
+}
 
 let fxCola = [];
 let fxActivo = false;
@@ -583,7 +820,7 @@ function procesarFxCola() {
     if (fxActivo || fxCola.length === 0) return;
     fxActivo = true;
     const el = elementsDB[fxCola.shift()];
-    const cita = CITAS[Math.floor(Math.random() * CITAS.length)];
+    const cita = citaParaElemento(el);
     document.getElementById('discoveryFx').innerHTML = `
         <div class="dg-overlay" onclick="cerrarFx()" title="Toca para continuar">
             <div class="dg-rays"></div>
