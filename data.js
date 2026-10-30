@@ -1600,3 +1600,57 @@ const LEAGUE_BADGES = {
     "ligue2": ["#091c3e", "#dae025", "L2", "#dae025"],
     "bundesliga2": ["#d20515", "#ffffff", "BL2", "#ffffff"]
 };
+
+// 5. TROFEOS — [metal (gold/silver), color distintivo, estilo]
+// Estilos: copa (clásica con asas), orejona (asas gigantes), globo (esfera en columna), balon (balón en pedestal)
+const TROPHY_ART = {
+    "trofeo": ["gold", "#8c6d1f", "copa"],
+    "mundial": ["gold", "#1b7a43", "globo"],
+    "copa_jules_rimet": ["gold", "#2b5fa3", "globo"],
+    "mundial_clubes": ["gold", "#444c55", "globo"],
+    "mundial_femenino": ["gold", "#d4357f", "globo"],
+    "champions": ["silver", "#13335c", "orejona"],
+    "europa_league": ["silver", "#ff6900", "copa"],
+    "conference_league": ["silver", "#00be6e", "copa"],
+    "supercopa_uefa": ["silver", "#1b3f94", "copa"],
+    "libertadores": ["gold", "#2a2a2a", "copa"],
+    "sudamericana": ["silver", "#e3a72f", "copa"],
+    "recopa": ["gold", "#d94f2b", "copa"],
+    "copa_america": ["gold", "#274e92", "copa"],
+    "eurocopa": ["silver", "#19408c", "copa"],
+    "copa_oro": ["gold", "#0b7a3e", "copa"],
+    "copa_africa": ["gold", "#8c5a1e", "copa"],
+    "copa_asiatica": ["silver", "#c01f2f", "copa"],
+    "copa_oceania": ["silver", "#0b7aa0", "copa"],
+    "intercontinental": ["gold", "#5b2d82", "copa"],
+    "supercopa": ["gold", "#cf1126", "copa"],
+    "fa_cup": ["silver", "#b01116", "copa"],
+    "copa_del_rey": ["silver", "#6d1fb0", "copa"],
+    "dfb_pokal": ["gold", "#111111", "copa"],
+    "coppa_italia": ["gold", "#024494", "copa"],
+    "concachampions": ["silver", "#0b2d5c", "copa"],
+    "copa_francia": ["silver", "#12275e", "copa"],
+    "copa_holanda": ["gold", "#ff7f00", "copa"],
+    "copa_do_brasil": ["gold", "#009739", "copa"],
+    "copa_argentina": ["silver", "#6cace4", "copa"],
+    "copa_chile": ["gold", "#d10a11", "copa"],
+    "us_open_cup": ["gold", "#001f5b", "copa"],
+    "copa_mx": ["silver", "#006847", "copa"],
+    "kings_cup": ["gold", "#165d31", "copa"],
+    "nations_league": ["silver", "#3bbfae", "copa"],
+    "finalissima": ["gold", "#50b3e0", "copa"],
+    "copa_confederaciones": ["gold", "#9c1c2e", "copa"],
+    "efl_cup": ["silver", "#1a9e60", "copa"],
+    "balon_de_oro": ["gold", "#2b2b2b", "balon"]
+};
+
+// 6. INSIGNIAS DE CONFEDERACIONES — [color base, color aro/texto secundario, texto]
+const ORG_BADGES = {
+    "fifa": ["#16325c", "#ffd700", "FIFA", "#ffd700"],
+    "uefa": ["#19408c", "#ffffff", "UEFA", "#ffffff"],
+    "conmebol": ["#0a7a3c", "#ffd100", "CSF", "#ffd100"],
+    "concacaf": ["#003da5", "#e4002b", "CCF", "#ffffff"],
+    "caf": ["#0a7a3c", "#ffffff", "CAF", "#ffffff"],
+    "afc": ["#19408c", "#e0282e", "AFC", "#ffffff"],
+    "ofc": ["#0b7aa0", "#ffffff", "OFC", "#ffffff"]
+};

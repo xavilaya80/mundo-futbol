@@ -79,6 +79,51 @@ function badgeDataURI([c1, c2, tx, txc]) {
 for (const id in LEAGUE_BADGES) {
     if (elementsDB[id]) elementsDB[id].img = badgeDataURI(LEAGUE_BADGES[id]);
 }
+for (const id in ORG_BADGES) {
+    if (elementsDB[id]) elementsDB[id].img = badgeDataURI(ORG_BADGES[id]);
+}
+
+// === TROFEOS (copas SVG sin fondo, doradas o plateadas) ===
+function trophyDataURI([metal, accent, style]) {
+    const m = metal === "silver"
+        ? { body: "#d9dee5", dark: "#929daa", hi: "#f4f7fa" }
+        : { body: "#e8c14a", dark: "#a9821f", hi: "#f7e7a8" };
+    const stem = `<path d='M46 64 L43 100 H57 L54 64 Z' fill='${m.dark}'/>`;
+    const base = `<rect x='34' y='96' width='32' height='12' rx='2' fill='${accent}'/>` +
+        `<rect x='28' y='106' width='44' height='10' rx='3' fill='${m.dark}'/>`;
+    let top = "";
+    if (style === "copa" || style === "orejona") {
+        const earR = style === "orejona" ? 15 : 9;
+        top = `<circle cx='${28 - earR * 0.4}' cy='36' r='${earR}' fill='none' stroke='${m.body}' stroke-width='5'/>` +
+            `<circle cx='${72 + earR * 0.4}' cy='36' r='${earR}' fill='none' stroke='${m.body}' stroke-width='5'/>` +
+            `<path d='M28 20 Q28 62 50 70 Q72 62 72 20 Z' fill='${m.body}'/>` +
+            `<path d='M28 20 Q28 62 50 70 L50 20 Z' fill='${m.hi}' opacity='0.35'/>` +
+            `<ellipse cx='50' cy='20' rx='22' ry='6' fill='${m.hi}'/>`;
+    } else if (style === "globo") {
+        top = `<path d='M38 68 Q34 42 50 36 Q66 42 62 68 Z' fill='${m.body}'/>` +
+            `<circle cx='50' cy='22' r='17' fill='${m.body}'/>` +
+            `<circle cx='44' cy='16' r='6' fill='${m.hi}' opacity='0.75'/>` +
+            `<path d='M33 22 Q50 32 67 22' fill='none' stroke='${m.dark}' stroke-width='2' opacity='0.7'/>` +
+            `<path d='M50 5 Q44 22 50 39' fill='none' stroke='${m.dark}' stroke-width='2' opacity='0.55'/>`;
+    } else if (style === "balon") {
+        top = `<circle cx='50' cy='44' r='26' fill='${m.body}'/>` +
+            `<circle cx='42' cy='34' r='8' fill='${m.hi}' opacity='0.8'/>` +
+            `<path d='M50 30 L59 37 L55 48 H45 L41 37 Z' fill='${m.dark}'/>`;
+    }
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 122'>` + stem + top + base + `</svg>`;
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+
+for (const id in TROPHY_ART) {
+    if (elementsDB[id]) elementsDB[id].img = trophyDataURI(TROPHY_ART[id]);
+}
+
+// Logos locales opcionales (logos-local.js, solo en copias privadas): pisan a los generados
+if (typeof LOGOS_LOCALES !== "undefined") {
+    for (const id in LOGOS_LOCALES) {
+        if (elementsDB[id]) elementsDB[id].img = LOGOS_LOCALES[id];
+    }
+}
 
 // Visual de un elemento: escudo SVG si lo tiene, emoji si no
 function iconoDe(el) {
