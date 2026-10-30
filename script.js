@@ -348,7 +348,7 @@ function clearSlot(slotNumber) {
 function updateSlots() {
     [[1, slot1], [2, slot2], [3, slot3]].forEach(([n, id]) => {
         const div = document.getElementById('slot' + n);
-        div.innerHTML = id ? `${iconoDe(elementsDB[id])}<br><span>${elementsDB[id].name}</span>` : "?";
+        div.innerHTML = id ? `<span class="slot-ico">${iconoDe(elementsDB[id])}</span><span>${elementsDB[id].name}</span>` : "?";
     });
 }
 

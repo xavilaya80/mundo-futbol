@@ -349,6 +349,20 @@ progress::-webkit-progress-value {
 .el-emoji .crest { vertical-align: middle; }
 .dg-emoji .crest { height: 1.1em; vertical-align: middle; }
 
+/* Icono dentro de los espacios de combinación: siempre centrado */
+.slot .slot-ico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+}
+
+.slot .slot-ico .crest {
+    height: 1.9em;
+    vertical-align: 0;
+    margin: 0;
+}
+
 .element .el-nombre {
     font-size: 0.66rem;
     line-height: 1.15;
