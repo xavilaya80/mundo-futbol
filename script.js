@@ -37,6 +37,39 @@ for (let key in recipes) {
     });
 }
 
+// === ESCUDOS DE CLUBES (SVG vectoriales sin fondo, generados por código) ===
+function crestDataURI([c1, c2, tx, txc, st]) {
+    const escudo = "M50 4 L96 16 V60 C96 92 76 108 50 118 C24 108 4 92 4 60 V16 Z";
+    let deco = "";
+    if (st === "stripes") {
+        for (let i = 1; i < 5; i += 2) deco += `<rect x='${4 + i * 18.4}' y='0' width='18.4' height='122' fill='${c2}'/>`;
+    } else if (st === "half") {
+        deco = `<rect x='50' y='0' width='50' height='122' fill='${c2}'/>`;
+    } else if (st === "hoops") {
+        for (let i = 1; i < 5; i += 2) deco += `<rect x='0' y='${i * 24.4}' width='100' height='24.4' fill='${c2}'/>`;
+    } else if (st === "band") {
+        deco = `<rect x='-25' y='46' width='150' height='28' fill='${c2}' transform='rotate(-18 50 60)'/>`;
+    }
+    const fs = tx.length > 3 ? 21 : (tx.length === 1 ? 40 : 27);
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 122'>` +
+        `<defs><clipPath id='s'><path d='${escudo}'/></clipPath></defs>` +
+        `<path d='${escudo}' fill='${c1}'/>` +
+        `<g clip-path='url(#s)'>${deco}</g>` +
+        `<path d='${escudo}' fill='none' stroke='#131b15' stroke-width='5'/>` +
+        `<text x='50' y='${62 + fs * 0.36}' font-family='Verdana, Arial, sans-serif' font-size='${fs}' font-weight='bold' text-anchor='middle' fill='${txc}' stroke='rgba(0,0,0,0.35)' stroke-width='0.6' paint-order='stroke'>${tx}</text>` +
+        `</svg>`;
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+
+for (const id in CLUB_CRESTS) {
+    if (elementsDB[id]) elementsDB[id].img = crestDataURI(CLUB_CRESTS[id]);
+}
+
+// Visual de un elemento: escudo SVG si lo tiene, emoji si no
+function iconoDe(el) {
+    return el.img ? `<img class="crest" src="${el.img}" alt="">` : el.emoji;
+}
+
 // Los demás ingredientes de una receta, quitando UNA aparición del elemento dado
 // (importante para recetas con repetidos, como gol+gol+gol)
 function otrosIngredientes(parts, elementId) {
@@ -77,6 +110,31 @@ function loadProgress() {
 
 function saveProgress() {
     localStorage.setItem("futbolSave", JSON.stringify(unlockedElements));
+}
+
+// === RESPALDO DE PROGRESO (código portátil entre dispositivos) ===
+function exportarProgreso() {
+    const codigo = btoa(unescape(encodeURIComponent(JSON.stringify(unlockedElements))));
+    if (navigator.clipboard) navigator.clipboard.writeText(codigo).catch(() => {});
+    prompt(`Tu código de respaldo (${unlockedElements.length} elementos). Ya se copió al portapapeles; guárdalo donde quieras:`, codigo);
+}
+
+function importarProgreso() {
+    const codigo = prompt("Pega aquí tu código de respaldo:");
+    if (!codigo) return;
+    try {
+        const lista = JSON.parse(decodeURIComponent(escape(atob(codigo.trim()))));
+        if (!Array.isArray(lista)) throw new Error("formato");
+        const validos = lista.filter(id => elementsDB[id]);
+        const antes = unlockedElements.length;
+        validos.forEach(id => { if (!unlockedElements.includes(id)) unlockedElements.push(id); });
+        saveProgress();
+        renderInventory();
+        checkAchievements(true);
+        showMessage(`📥 Respaldo restaurado: +${unlockedElements.length - antes} elementos (${unlockedElements.length} en total).`, "#00f5d4");
+    } catch (e) {
+        showMessage("Ese código no es válido. Revisa que lo hayas pegado completo.", "orange");
+    }
 }
 
 function resetGame() {
@@ -150,7 +208,7 @@ function renderInventory() {
             const el = elementsDB[elementId];
             const btn = document.createElement('div');
             btn.className = 'element';
-            btn.innerHTML = `<span class="el-emoji">${el.emoji}</span><span class="el-nombre">${el.name}</span>`;
+            btn.innerHTML = `<span class="el-emoji">${iconoDe(el)}</span><span class="el-nombre">${el.name}</span>`;
             let tooltip = "Clic/Enter: seleccionar · Arrastrar a un espacio · Clic derecho o tecla E: enciclopedia";
             if (hasNewCombos(elementId, unlockedSet)) {
                 btn.classList.add('has-combos');
@@ -290,7 +348,7 @@ function clearSlot(slotNumber) {
 function updateSlots() {
     [[1, slot1], [2, slot2], [3, slot3]].forEach(([n, id]) => {
         const div = document.getElementById('slot' + n);
-        div.innerHTML = id ? `${elementsDB[id].emoji}<br><span>${elementsDB[id].name}</span>` : "?";
+        div.innerHTML = id ? `${iconoDe(elementsDB[id])}<br><span>${elementsDB[id].name}</span>` : "?";
     });
 }
 
@@ -826,7 +884,7 @@ function procesarFxCola() {
             <div class="dg-rays"></div>
             <div class="dg-flash"></div>
             <div class="dg-centro">
-                <div class="dg-emoji">${el.emoji}</div>
+                <div class="dg-emoji">${iconoDe(el)}</div>
                 <div class="dg-titulo">¡Nuevo descubrimiento!</div>
                 <div class="dg-nombre">${el.name}</div>
                 <div class="dg-cita">${cita}</div>
@@ -975,7 +1033,7 @@ function encChip(elementId) {
     const el = elementsDB[elementId];
     return `<span class="enc-chip" role="button" tabindex="0" aria-label="${el.name}"
         onclick="showEncDetail('${elementId}')"
-        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showEncDetail('${elementId}');}">${el.emoji} ${el.name}</span>`;
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showEncDetail('${elementId}');}">${iconoDe(el)} ${el.name}</span>`;
 }
 
 function renderEncIndex() {
@@ -1042,7 +1100,7 @@ function showEncDetail(elementId) {
     document.getElementById('encBody').innerHTML = `
         <button class="btn btn-info enc-back" onclick="renderEncIndex()">← Volver al índice</button>
         <div class="enc-hero">
-            <div class="enc-emoji">${el.emoji}</div>
+            <div class="enc-emoji">${iconoDe(el)}</div>
             <h3>${el.name}</h3>
             <div class="enc-cat">${categoryNames[el.group] || "Otros"}</div>
         </div>
