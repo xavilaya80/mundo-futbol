@@ -1578,3 +1578,25 @@ const CLUB_CRESTS = {
     "alianza_lima": ["#0d2d6c", "#ffffff", "AL", "#d4af37", "stripes"],
     "universitario": ["#efe3c1", "#efe3c1", "U", "#7b1113", "plain"]
 };
+
+// 4. INSIGNIAS DE LIGAS — [color base, color del aro, iniciales, color texto]
+// Medallones redondos propios con los colores característicos de cada liga.
+const LEAGUE_BADGES = {
+    "premier": ["#3d195b", "#ffffff", "PL", "#ffffff"],
+    "laliga": ["#ff4b44", "#ffffff", "LL", "#ffffff"],
+    "serie_a": ["#024494", "#ffffff", "SA", "#ffffff"],
+    "bundesliga": ["#d20515", "#ffffff", "BL", "#ffffff"],
+    "ligue1": ["#091c3e", "#dae025", "L1", "#dae025"],
+    "eredivisie": ["#ff7f00", "#ffffff", "ED", "#ffffff"],
+    "brasileirao": ["#009739", "#ffd100", "BR", "#ffd100"],
+    "liga_argentina": ["#6cace4", "#ffffff", "LPF", "#ffffff"],
+    "liga_chilena": ["#d10a11", "#0038a8", "CHI", "#ffffff"],
+    "liga_mx": ["#006847", "#ffffff", "MX", "#ffffff"],
+    "mls": ["#001f5b", "#e4002b", "MLS", "#ffffff"],
+    "saudi": ["#165d31", "#ffd700", "SPL", "#ffd700"],
+    "championship": ["#021c4c", "#ffffff", "EFL", "#ffffff"],
+    "laliga2": ["#ff4b44", "#ffffff", "LL2", "#ffffff"],
+    "serie_b": ["#024494", "#ffffff", "SB", "#ffffff"],
+    "ligue2": ["#091c3e", "#dae025", "L2", "#dae025"],
+    "bundesliga2": ["#d20515", "#ffffff", "BL2", "#ffffff"]
+};

@@ -65,6 +65,21 @@ for (const id in CLUB_CRESTS) {
     if (elementsDB[id]) elementsDB[id].img = crestDataURI(CLUB_CRESTS[id]);
 }
 
+// === INSIGNIAS DE LIGAS (medallones redondos SVG, sin fondo) ===
+function badgeDataURI([c1, c2, tx, txc]) {
+    const fs = tx.length > 2 ? 26 : 34;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>` +
+        `<circle cx='50' cy='50' r='46' fill='${c1}' stroke='#131b15' stroke-width='4'/>` +
+        `<circle cx='50' cy='50' r='37' fill='none' stroke='${c2}' stroke-width='2.5' opacity='0.85'/>` +
+        `<text x='50' y='${50 + fs * 0.36}' font-family='Verdana, Arial, sans-serif' font-size='${fs}' font-weight='bold' text-anchor='middle' fill='${txc}' stroke='rgba(0,0,0,0.3)' stroke-width='0.5' paint-order='stroke'>${tx}</text>` +
+        `</svg>`;
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+
+for (const id in LEAGUE_BADGES) {
+    if (elementsDB[id]) elementsDB[id].img = badgeDataURI(LEAGUE_BADGES[id]);
+}
+
 // Visual de un elemento: escudo SVG si lo tiene, emoji si no
 function iconoDe(el) {
     return el.img ? `<img class="crest" src="${el.img}" alt="">` : el.emoji;
